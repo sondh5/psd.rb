@@ -8,7 +8,7 @@ class PSD
     def self.should_parse?(key)
       key == 'TySh'
     end
-    
+
     # Parse all of the text data in the layer.
     def parse
       version = @file.read_short
@@ -59,7 +59,7 @@ class PSD
       }
     end
 
-    # Returns all fonts listed for this layer, since fonts are defined on a 
+    # Returns all fonts listed for this layer, since fonts are defined on a
     # per-character basis.
     def fonts
       return [] if engine_data.nil?
@@ -77,10 +77,10 @@ class PSD
       return [] if engine_data.nil? || !styles.has_key?('FontSize')
       styles['FontSize'].uniq
     end
-    
+
     def alignment
       return {} if engine_data.nil?
-      engine_data.EngineDict.ParagraphRun.RunArray.map do |s| 
+      engine_data.EngineDict.ParagraphRun.RunArray.map do |s|
         ["left", "right", "center", "justify"][[s.ParagraphSheet.Properties.Justification.to_i,3].min]
       end
     rescue
@@ -125,7 +125,7 @@ class PSD
     end
 
     def parser
-      @parser ||= PSD::EngineData.new(@data[:text]['EngineData'])
+      @parser ||= PSD::EngineData.new(@data[:text]['EngineData'].gsub("/_Direction 0", ""))
     end
 
     # Creates the CSS string and returns it. Each property is newline separated
@@ -133,7 +133,7 @@ class PSD
     #
     # Colors are returned in rgba() format and fonts may include some internal
     # Photoshop fonts.
-    def to_css      
+    def to_css
       definition = {
         'font-family' => fonts.join(', '),
         'font-size' => "#{sizes.first}pt",
